@@ -12,6 +12,10 @@ alembic==1.13.3
 
 # Environment & config
 python-dotenv==1.0.1
+python-multipart==0.0.20
+
+
+
 
 # Security & sanitization
 bleach==6.1.0

@@ -2,8 +2,6 @@ from uuid import UUID
 
 from pydantic import BaseModel, field_validator
 
-MINIMUM_DATA_POINTS = 1
-
 
 class Benchmark(BaseModel):
     """
@@ -28,8 +26,8 @@ class Benchmark(BaseModel):
     @field_validator("data_points")
     @classmethod
     def validate_data_points(cls, value: int) -> int:
-        if value < MINIMUM_DATA_POINTS:
+        if value < 0:
             raise ValueError(
-                f"data_points must be at least {MINIMUM_DATA_POINTS}, received {value}."
+                f"data_points must be non-negative, received {value}."
             )
         return value
