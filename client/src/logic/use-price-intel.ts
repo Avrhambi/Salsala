@@ -19,7 +19,8 @@ export function usePriceIntel(itemId: UUID | null): TrendValue | null {
       .then(({ data }) => {
         setPriceTrend(itemId, data.trend);
       })
-      .catch(() => {
+      .catch((err: unknown) => {
+        console.warn(`[usePriceIntel] Failed to fetch trend for item ${itemId}:`, err);
         setPriceTrend(itemId, TrendValue.NA);
       });
   }, [itemId, priceTrends, setPriceTrend]);

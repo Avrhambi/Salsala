@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "Salsala",
+    "slug": "salsala",
+    "version": "1.0.0",
+    "extra": {
+      "apiBaseUrl": "http://localhost:8000",
+      "wsBaseUrl": "ws://localhost:8000"
+    }
+  }
+}

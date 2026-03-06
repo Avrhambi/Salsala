@@ -24,8 +24,8 @@ export function createListSocket(
       const raw = JSON.parse(event.data as string);
       const list = ShoppingListSchema.parse(raw);
       onSync(list);
-    } catch {
-      // Malformed frame — ignore silently; server will resync
+    } catch (err) {
+      console.warn("[websocket] Malformed frame dropped:", err);
     }
   };
 

@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
+import uuid
+
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from server.controllers.list import SyncRequest, handle_sync
@@ -24,6 +26,13 @@ async def websocket_sync(websocket: WebSocket, list_id: str):
     WebSocket endpoint for real-time collaborative list synchronization.
     Broadcasts state changes to all connected household members.
     """
+    try:
+        uuid.UUID(list_id)
+    except ValueError:
+        await websocket.close(code=1008)
+        _logger.warning("Rejected WebSocket connection: invalid list_id %r.", list_id)
+        return
+
     await websocket.accept()
     _logger.info("WebSocket connection opened for list %s.", list_id)
     try:
