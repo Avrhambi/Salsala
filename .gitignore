@@ -2,21 +2,22 @@
 venv/
 __pycache__/
 *.pyc
+*.pyo
 *.egg-info/
+.pytest_cache/
 
 # Environment
 .env
+.env.*
 
 # macOS
 .DS_Store
 
 # Node
 node_modules/
-client/node_modules/
 
 # Expo
 .expo/
-client/.expo/
 
 # Locks
 client/package-lock.json
@@ -24,3 +25,4 @@ client/package-lock.json
 # Project-specific
 Salsala_CLAUDE_MISSIONS.md
 docs/
+test.py
