@@ -186,7 +186,7 @@ When a field is added to a Pydantic model, the TypeScript interface and Zod sche
 
 ---
 
-## Deferred Features (in git history)
+## TODO Features 
 
 The following features were scoped out of the MVP but are preserved in git history for future implementation:
 
