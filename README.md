@@ -133,7 +133,36 @@ Salsala/
 
 ---
 
-### Backend Setup
+### Option A — Docker (recommended)
+
+Runs both the PostgreSQL database and the FastAPI server together with a single command. No Python environment or database setup needed.
+
+```bash
+docker compose -f docker/docker-compose.yml up --build
+```
+
+The API will be available at `http://localhost:8000`.
+Interactive docs at `http://localhost:8000/docs`.
+
+What it starts:
+- `db` — PostgreSQL 16 on port 5432 (with a health check)
+- `api` — FastAPI server on port 8000 (waits for the DB to be healthy before starting)
+
+Tables are created automatically on first startup. Data is persisted in a Docker volume (`postgres_data`) so it survives container restarts.
+
+To stop:
+```bash
+docker compose -f docker/docker-compose.yml down
+```
+
+To wipe all data and start fresh:
+```bash
+docker compose -f docker/docker-compose.yml down -v
+```
+
+---
+
+### Option B — Manual Backend Setup
 
 **1. Clone and create a virtual environment**
 
@@ -159,9 +188,9 @@ cp .env.example .env
 
 **4. Start PostgreSQL**
 
-Using Docker:
+Using Docker (DB only):
 ```bash
-docker-compose -f docker/docker-compose.yml up db -d
+docker compose -f docker/docker-compose.yml up db -d
 ```
 
 Or point `DATABASE_URL` at an existing PostgreSQL instance.
