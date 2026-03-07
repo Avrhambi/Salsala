@@ -138,6 +138,7 @@ Salsala/
 Runs both the PostgreSQL database and the FastAPI server together with a single command. No Python environment or database setup needed.
 
 ```bash
+git clone <repo-url>
 docker compose -f docker/docker-compose.yml up --build
 ```
 
