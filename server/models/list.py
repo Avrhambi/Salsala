@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List as PyList
+from typing import List as PyList, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, field_validator
@@ -9,14 +9,16 @@ from server.models.item import Item
 
 class ShoppingList(BaseModel):
     """
-    A collaborative shopping list shared between one or more users.
+    A shopping list owned by one or more users.
     Named ShoppingList to avoid shadowing Python's built-in List type.
     """
 
     list_id: UUID
+    name: str
     users: PyList[UUID]
     items: PyList[Item]
-    sync_timestamp: datetime
+    is_completed: bool = False
+    completed_at: Optional[datetime] = None
 
     @field_validator("users")
     @classmethod

@@ -9,15 +9,46 @@ export const styles = StyleSheet.create({
     marginVertical: Spacing.xs,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     borderWidth: 1,
     borderColor: Colors.border,
+    gap: Spacing.sm,
+  },
+  cardBought: {
+    opacity: 0.55,
+  },
+  checkboxArea: {
+    padding: Spacing.xs,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: BorderRadius.sm,
+    borderWidth: 2,
+    borderColor: Colors.accent,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkboxChecked: {
+    backgroundColor: Colors.success,
+    borderColor: Colors.success,
+  },
+  checkmark: {
+    color: Colors.surface,
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.bold,
+  },
+  nameArea: {
+    flex: 1,
   },
   nameText: {
     fontSize: FontSize.md,
     fontWeight: FontWeight.medium,
     color: Colors.textPrimary,
-    flex: 1,
+    textAlign: "right",
+  },
+  nameTextBought: {
+    textDecorationLine: "line-through",
+    color: Colors.textSecondary,
   },
   quantityBadge: {
     backgroundColor: Colors.accentLight,
@@ -32,8 +63,17 @@ export const styles = StyleSheet.create({
     fontWeight: FontWeight.bold,
     color: Colors.accent,
   },
-  trendText: {
-    fontSize: FontSize.xs,
-    marginLeft: Spacing.sm,
+  removeBtn: {
+    backgroundColor: Colors.error,
+    borderRadius: BorderRadius.sm,
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  removeBtnText: {
+    color: Colors.surface,
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
   },
 });

@@ -3,24 +3,22 @@
  * Screens and hooks read/write here; no prop-drilling required.
  */
 import { create } from "zustand";
-import { Item, ShoppingList, StoreRank, TrendValue, UUID } from "../../common/types";
+import { ShoppingList, UUID } from "../../common/types";
 
 interface AppState {
-  // Active shopping list
+  // All active (non-completed) lists for the current user
+  lists: ShoppingList[];
+  setLists: (lists: ShoppingList[]) => void;
+  upsertList: (list: ShoppingList) => void;
+  removeList: (listId: UUID) => void;
+
+  // Currently opened list (drill-down view)
   activeList: ShoppingList | null;
-  setActiveList: (list: ShoppingList) => void;
+  setActiveList: (list: ShoppingList | null) => void;
 
-  // Item search results (NLP)
-  searchResults: Item[];
-  setSearchResults: (items: Item[]) => void;
-
-  // Store recommendations
-  storeRankings: StoreRank[];
-  setStoreRankings: (rankings: StoreRank[]) => void;
-
-  // Price trend cache: item_id → TrendValue
-  priceTrends: Record<UUID, TrendValue>;
-  setPriceTrend: (itemId: UUID, trend: TrendValue) => void;
+  // Completed lists (History tab)
+  history: ShoppingList[];
+  setHistory: (lists: ShoppingList[]) => void;
 
   // Current user
   userId: UUID | null;
@@ -34,18 +32,26 @@ interface AppState {
 }
 
 export const useAppStore = create<AppState>((set) => ({
+  lists: [],
+  setLists: (lists) => set({ lists }),
+  upsertList: (list) =>
+    set((state) => {
+      const existing = state.lists.findIndex((l) => l.list_id === list.list_id);
+      if (existing >= 0) {
+        const updated = [...state.lists];
+        updated[existing] = list;
+        return { lists: updated };
+      }
+      return { lists: [...state.lists, list] };
+    }),
+  removeList: (listId) =>
+    set((state) => ({ lists: state.lists.filter((l) => l.list_id !== listId) })),
+
   activeList: null,
   setActiveList: (list) => set({ activeList: list }),
 
-  searchResults: [],
-  setSearchResults: (items) => set({ searchResults: items }),
-
-  storeRankings: [],
-  setStoreRankings: (rankings) => set({ storeRankings: rankings }),
-
-  priceTrends: {},
-  setPriceTrend: (itemId, trend) =>
-    set((state) => ({ priceTrends: { ...state.priceTrends, [itemId]: trend } })),
+  history: [],
+  setHistory: (lists) => set({ history: lists }),
 
   userId: null,
   setUserId: (id) => set({ userId: id }),

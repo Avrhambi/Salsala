@@ -4,43 +4,43 @@
  */
 import React from "react";
 import { Pressable, Text, View } from "react-native";
-import { TrendValue } from "../../common/types";
-import { Colors } from "../constants/theme";
 import { styles } from "./ItemCard.styles";
 
 interface ItemCardProps {
   nameHebrew: string;
   quantity: number;
-  trend?: TrendValue;
-  onPress?: () => void;
+  isBought: boolean;
+  onMarkBought?: () => void;
+  onRemove?: () => void;
 }
 
-const TREND_COLOR: Record<TrendValue, string> = {
-  [TrendValue.UP]: Colors.error,
-  [TrendValue.DOWN]: Colors.success,
-  [TrendValue.STABLE]: Colors.textSecondary,
-  [TrendValue.NA]: Colors.textSecondary,
-};
-
-const TREND_LABEL: Record<TrendValue, string> = {
-  [TrendValue.UP]: "↑",
-  [TrendValue.DOWN]: "↓",
-  [TrendValue.STABLE]: "→",
-  [TrendValue.NA]: "",
-};
-
-export function ItemCard({ nameHebrew, quantity, trend, onPress }: ItemCardProps) {
+export function ItemCard({ nameHebrew, quantity, isBought, onMarkBought, onRemove }: ItemCardProps) {
   return (
-    <Pressable style={styles.card} onPress={onPress} accessibilityRole="button">
-      <Text style={styles.nameText}>{nameHebrew}</Text>
-      {trend && trend !== TrendValue.NA && (
-        <Text style={[styles.trendText, { color: TREND_COLOR[trend] }]}>
-          {TREND_LABEL[trend]}
-        </Text>
-      )}
+    <View style={[styles.card, isBought && styles.cardBought]}>
+      <Pressable
+        style={styles.checkboxArea}
+        onPress={onMarkBought}
+        accessibilityLabel="סמן כנקנה"
+        disabled={isBought}
+      >
+        <View style={[styles.checkbox, isBought && styles.checkboxChecked]}>
+          {isBought && <Text style={styles.checkmark}>✓</Text>}
+        </View>
+      </Pressable>
+
+      <View style={styles.nameArea}>
+        <Text style={[styles.nameText, isBought && styles.nameTextBought]}>{nameHebrew}</Text>
+      </View>
+
       <View style={styles.quantityBadge}>
         <Text style={styles.quantityText}>{quantity}</Text>
       </View>
-    </Pressable>
+
+      {onRemove && (
+        <Pressable style={styles.removeBtn} onPress={onRemove} accessibilityLabel="הסר">
+          <Text style={styles.removeBtnText}>×</Text>
+        </Pressable>
+      )}
+    </View>
   );
 }

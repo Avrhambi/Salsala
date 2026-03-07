@@ -9,6 +9,7 @@ class Item(BaseModel):
     id: UUID
     name_hebrew: str
     default_quantity: int
+    is_bought: bool = False
 
     @field_validator("name_hebrew")
     @classmethod

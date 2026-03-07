@@ -31,15 +31,18 @@ export interface Item {
   id: UUID;
   name_hebrew: string;
   default_quantity: number;
+  is_bought: boolean;
 }
 
 // ── server/models/list.py ────────────────────────────────────────────────────
 
 export interface ShoppingList {
   list_id: UUID;
+  name: string;
   users: UUID[];
   items: Item[];
-  sync_timestamp: string; // ISO 8601 datetime string
+  is_completed: boolean;
+  completed_at: string | null;
 }
 
 // ── server/models/transaction.py ─────────────────────────────────────────────
@@ -95,4 +98,6 @@ export interface StoreRank {
   store_id: UUID;
   total_basket_cost: number;
   item_count: number;
+  distance_km: number;
+  store_name: string;
 }

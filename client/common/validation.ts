@@ -26,15 +26,18 @@ export const ItemSchema = z.object({
   id: UUIDSchema,
   name_hebrew: z.string().trim().min(1, "name_hebrew must not be empty."),
   default_quantity: z.number().int().min(0),
+  is_bought: z.boolean(),
 });
 
 // ── server/models/list.py ────────────────────────────────────────────────────
 
 export const ShoppingListSchema = z.object({
   list_id: UUIDSchema,
+  name: z.string().trim().min(1, "List name must not be empty."),
   users: z.array(UUIDSchema).min(1, "A ShoppingList must have at least one user."),
   items: z.array(ItemSchema),
-  sync_timestamp: z.string().datetime(),
+  is_completed: z.boolean(),
+  completed_at: z.string().nullable(),
 });
 
 // ── server/models/transaction.py ─────────────────────────────────────────────
@@ -81,7 +84,7 @@ export const StoreSchema = z.object({
 export const UserSchema = z.object({
   user_id: UUIDSchema,
   display_name: z.string().trim().min(1, "display_name must not be empty."),
-  last_known_location: GeoCoordinatesSchema.optional(),
+  last_known_location: GeoCoordinatesSchema.nullish(),
 });
 
 // ── server/core/geo_optimizer.py ─────────────────────────────────────────────
@@ -90,6 +93,8 @@ export const StoreRankSchema = z.object({
   store_id: UUIDSchema,
   total_basket_cost: z.number().min(0),
   item_count: z.number().int().min(0),
+  distance_km: z.number().min(0),
+  store_name: z.string(),
 });
 
 // ── Inferred types (use these instead of manual interfaces where convenient) ──

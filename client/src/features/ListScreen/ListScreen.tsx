@@ -1,87 +1,212 @@
 /**
- * ListScreen — primary screen; displays the active shopping list.
- * Smart container: delegates all data ops to useList and useSync hooks.
- * UI state only — no direct API calls.
+ * ListScreen — shows all user lists; tap a list to view/manage its items.
  */
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import {
-  ActivityIndicator,
+  Alert,
   FlatList,
   SafeAreaView,
+  Share,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
+import { ShoppingList } from "../../../common/types";
 import { ItemCard } from "../../components/ItemCard";
-import { Colors, FontSize, FontWeight, Spacing } from "../../constants/theme";
+import { PrimaryButton } from "../../components/PrimaryButton";
+import { Colors, BorderRadius, FontSize, FontWeight, Spacing } from "../../constants/theme";
 import { useList } from "../../logic/use-list";
-import { usePriceIntel } from "../../logic/use-price-intel";
-import { useSync } from "../../logic/use-sync";
 import { useAppStore } from "../../store/app-store";
+import { AddItemBar } from "./AddItemBar";
+import { CreateListModal } from "./CreateListModal";
 
-// Placeholder list ID — replaced by navigation params in the full flow
-const DEMO_LIST_ID = "00000000-0000-0000-0000-000000000001";
+function shareList(list: ShoppingList) {
+  Share.share({
+    message: `הצטרפ/י לרשימת הקניות שלי "${list.name}"!\nמזהה: ${list.list_id}`,
+  });
+}
 
-function ItemRow({ itemId, nameHebrew, quantity }: { itemId: string; nameHebrew: string; quantity: number }) {
-  const trend = usePriceIntel(itemId);
-  return <ItemCard nameHebrew={nameHebrew} quantity={quantity} trend={trend ?? undefined} />;
+function ListRow({
+  list,
+  onOpen,
+  onDelete,
+}: {
+  list: ShoppingList;
+  onOpen: () => void;
+  onDelete: () => void;
+}) {
+  return (
+    <TouchableOpacity style={styles.listRow} onPress={onOpen}>
+      <View style={styles.listRowContent}>
+        <Text style={styles.listName}>{list.name}</Text>
+        <Text style={styles.listMeta}>{list.items.length} פריטים</Text>
+      </View>
+      <TouchableOpacity onPress={() => shareList(list)} style={styles.shareBtn} accessibilityLabel="שתף רשימה">
+        <Text style={styles.shareBtnText}>שתף</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={onDelete} style={styles.deleteBtn} accessibilityLabel="מחק רשימה">
+        <Text style={styles.deleteBtnText}>🗑</Text>
+      </TouchableOpacity>
+    </TouchableOpacity>
+  );
+}
+
+function ActiveListView({ list }: { list: ShoppingList }) {
+  const { removeItem, markBought, rename } = useList();
+  const setActiveList = useAppStore((s) => s.setActiveList);
+
+  function handleRename() {
+    Alert.prompt("שנה שם", "שם חדש לרשימה:", async (newName) => {
+      if (newName?.trim()) await rename(list.list_id, newName.trim());
+    });
+  }
+
+  return (
+    <>
+      <View style={styles.activeHeader}>
+        <TouchableOpacity onPress={() => setActiveList(null)} style={styles.backBtn}>
+          <Text style={styles.backBtnText}>← חזרה</Text>
+        </TouchableOpacity>
+        <Text style={styles.activeTitle}>{list.name}</Text>
+        <TouchableOpacity onPress={handleRename} style={styles.headerBtn}>
+          <Text style={styles.headerBtnText}>✏️</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => shareList(list)} style={styles.headerBtn}>
+          <Text style={styles.headerBtnText}>שתף</Text>
+        </TouchableOpacity>
+      </View>
+
+      <AddItemBar listId={list.list_id} />
+
+      <FlatList
+        data={list.items}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <ItemCard
+            nameHebrew={item.name_hebrew}
+            quantity={item.default_quantity}
+            isBought={item.is_bought}
+            onMarkBought={() => markBought(list.list_id, item.id)}
+            onRemove={() => removeItem(list.list_id, item.id)}
+          />
+        )}
+        contentContainerStyle={styles.itemList}
+        ListEmptyComponent={<Text style={styles.emptyText}>הרשימה ריקה — הוסף פריט למעלה</Text>}
+      />
+    </>
+  );
 }
 
 export function ListScreen() {
-  const { loadList } = useList();
+  const lists = useAppStore((s) => s.lists);
   const activeList = useAppStore((s) => s.activeList);
+  const setActiveList = useAppStore((s) => s.setActiveList);
   const isLoading = useAppStore((s) => s.isLoading);
-  const error = useAppStore((s) => s.error);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const { remove } = useList();
 
-  useSync(activeList?.list_id ?? DEMO_LIST_ID);
-
-  useEffect(() => {
-    loadList(DEMO_LIST_ID);
-  }, []);
-
-  if (isLoading) {
-    return (
-      <SafeAreaView style={styles.centered}>
-        <ActivityIndicator color={Colors.accent} size="large" />
-      </SafeAreaView>
-    );
+  function handleDelete(list: ShoppingList) {
+    Alert.alert("מחק רשימה", `האם למחוק את "${list.name}"?`, [
+      { text: "ביטול", style: "cancel" },
+      { text: "מחק", style: "destructive", onPress: () => remove(list.list_id) },
+    ]);
   }
 
-  if (error) {
+  if (activeList) {
     return (
-      <SafeAreaView style={styles.centered}>
-        <Text style={styles.errorText}>{error}</Text>
+      <SafeAreaView style={styles.container}>
+        <ActiveListView list={activeList} />
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.heading}>הרשימה שלי</Text>
-      <FlatList
-        data={activeList?.items ?? []}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <ItemRow itemId={item.id} nameHebrew={item.name_hebrew} quantity={item.default_quantity} />
-        )}
-        contentContainerStyle={styles.list}
-        ListEmptyComponent={<Text style={styles.emptyText}>הרשימה ריקה</Text>}
-      />
+      <View style={styles.header}>
+        <Text style={styles.heading}>הרשימות שלי</Text>
+        <TouchableOpacity onPress={() => setShowCreateModal(true)} style={styles.addListBtn}>
+          <Text style={styles.addListBtnText}>+ רשימה</Text>
+        </TouchableOpacity>
+      </View>
+
+      {isLoading ? (
+        <Text style={styles.loadingText}>טוען...</Text>
+      ) : (
+        <FlatList
+          data={lists.filter((l) => !l.is_completed)}
+          keyExtractor={(l) => l.list_id}
+          renderItem={({ item }) => (
+            <ListRow
+              list={item}
+              onOpen={() => setActiveList(item)}
+              onDelete={() => handleDelete(item)}
+            />
+          )}
+          contentContainerStyle={styles.outerList}
+          ListEmptyComponent={
+            <View style={styles.centered}>
+              <Text style={styles.emptyStateText}>אין רשימות עדיין</Text>
+              <PrimaryButton label="צור רשימה" onPress={() => setShowCreateModal(true)} />
+            </View>
+          }
+        />
+      )}
+
+      <CreateListModal visible={showCreateModal} onClose={() => setShowCreateModal(false)} />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  centered: { flex: 1, alignItems: "center", justifyContent: "center" },
-  heading: {
-    fontSize: FontSize.xl,
-    fontWeight: FontWeight.bold,
-    color: Colors.textPrimary,
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     padding: Spacing.md,
-    textAlign: "right",
   },
-  list: { paddingHorizontal: Spacing.md, paddingBottom: Spacing.xl },
-  errorText: { color: Colors.error, fontSize: FontSize.md, padding: Spacing.md },
+  heading: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, color: Colors.textPrimary },
+  addListBtn: {
+    backgroundColor: Colors.accent,
+    borderRadius: BorderRadius.sm,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+  },
+  addListBtnText: { color: Colors.surface, fontWeight: FontWeight.bold, fontSize: FontSize.md },
+  outerList: { paddingHorizontal: Spacing.md, paddingBottom: Spacing.xl },
+  listRow: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginVertical: Spacing.xs,
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  listRowContent: { flex: 1 },
+  listName: { fontSize: FontSize.md, fontWeight: FontWeight.bold, color: Colors.textPrimary },
+  listMeta: { fontSize: FontSize.xs, color: Colors.textSecondary, marginTop: 2 },
+  shareBtn: { paddingHorizontal: Spacing.sm, paddingVertical: Spacing.xs, marginRight: Spacing.xs },
+  shareBtnText: { color: Colors.accent, fontSize: FontSize.sm, fontWeight: FontWeight.bold },
+  deleteBtn: { padding: Spacing.sm },
+  deleteBtnText: { fontSize: FontSize.lg },
+  activeHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  backBtn: { marginRight: Spacing.md },
+  backBtnText: { color: Colors.accent, fontSize: FontSize.md },
+  activeTitle: { flex: 1, fontSize: FontSize.lg, fontWeight: FontWeight.bold, color: Colors.textPrimary, textAlign: "center" },
+  headerBtn: { padding: Spacing.xs, marginLeft: Spacing.xs },
+  headerBtnText: { fontSize: FontSize.md, color: Colors.accent },
+  itemList: { paddingHorizontal: Spacing.md, paddingBottom: Spacing.xl },
+  centered: { flex: 1, alignItems: "center", justifyContent: "center", paddingTop: Spacing.xl },
+  emptyStateText: { color: Colors.textSecondary, fontSize: FontSize.lg, marginBottom: Spacing.lg },
   emptyText: { color: Colors.textSecondary, textAlign: "center", marginTop: Spacing.xl },
+  loadingText: { color: Colors.textSecondary, textAlign: "center", marginTop: Spacing.xl },
 });
