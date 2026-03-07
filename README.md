@@ -48,7 +48,6 @@ Users create named lists, add items in Hebrew, mark items as bought, share lists
 | ORM | SQLAlchemy async |
 | Migrations | Alembic |
 | Containerization | Docker, Docker Compose |
-| CI | GitHub Actions |
 
 ---
 
@@ -113,11 +112,8 @@ Salsala/
 │   └── docker-compose.yml
 │
 ├── tests/
-│   └── core/                    # Pytest test suite
-│
-└── .github/
-    └── workflows/
-        └── ci.yml               # GitHub Actions CI
+    └── core/                    # Pytest test suite
+
 ```
 
 ---
@@ -289,7 +285,6 @@ When all items in a list are marked as bought, the list is automatically marked 
 pytest tests/ -v
 ```
 
-CI runs on every push and PR to `main` via GitHub Actions (`.github/workflows/ci.yml`).
 
 ---
 
