@@ -12,20 +12,6 @@ alembic==1.13.3
 
 # Environment & config
 python-dotenv==1.0.1
-python-multipart==0.0.20
-
-
-
-
-# Security & sanitization
-bleach==6.1.0
-
-# OCR
-pytesseract==0.3.13
-Pillow==11.0.0
-
-# NLP / Hebrew text processing
-spacy==3.8.2
 
 # Testing
 pytest==8.3.3
