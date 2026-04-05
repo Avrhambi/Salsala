@@ -34,7 +34,7 @@ Users create named lists, add items in Hebrew, mark items as bought, share lists
 
 ## TODO Features 
 
-The following features were scoped out of the MVP but are preserved in git history for future implementation:
+The following features are preserved in git history for future implementation:
 
 | Feature | Branch / Commit |
 |---|---|
