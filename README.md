@@ -32,6 +32,21 @@ Users create named lists, add items in Hebrew, mark items as bought, share lists
 - **Reuse lists** — recreate a completed list as a new active list with one tap
 - **Multi-user** — multiple users can share the same list
 
+## TODO Features 
+
+The following features were scoped out of the MVP but are preserved in git history for future implementation:
+
+| Feature | Branch / Commit |
+|---|---|
+| WebSocket real-time sync | git history |
+| Hebrew NLP item search | git history |
+| Receipt OCR (ScannerScreen) | git history |
+| Store geo-recommendations | git history |
+| Price intelligence / winsorization | git history |
+| Barcode scanner | git history |
+| Transaction log | git history |
+
+
 ---
 
 ## Tech Stack
