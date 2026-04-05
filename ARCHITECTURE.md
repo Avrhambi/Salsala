@@ -186,22 +186,6 @@ When a field is added to a Pydantic model, the TypeScript interface and Zod sche
 
 ---
 
-## TODO Features 
-
-The following features were scoped out of the MVP but are preserved in git history for future implementation:
-
-| Feature | Branch / Commit |
-|---|---|
-| WebSocket real-time sync | git history |
-| Hebrew NLP item search | git history |
-| Receipt OCR (ScannerScreen) | git history |
-| Store geo-recommendations | git history |
-| Price intelligence / winsorization | git history |
-| Barcode scanner | git history |
-| Transaction log | git history |
-
----
-
 ## Adding a New Feature — Checklist
 
 1. **Server model** — add Pydantic model in `server/models/`
